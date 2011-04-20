@@ -9,8 +9,8 @@ Gem::Specification.new do |s|
   s.authors     = ["George Schreiber"]
   s.email       = ["gy.schreiber@mobility.hu"]
   s.homepage    = ""
-  s.summary     = %q{A very simple DOS (Denial-Of-Service) attack prevention gem}
-  s.description = %q{By including this in your app, it can track requests per IP address and refuse processing the request if there were too many requests recently from the given IP address.}
+  s.summary     = %q{A very simple, application-level DOS (Denial-Of-Service) attack prevention gem}
+  s.description = %q{A very simple, application-level DOS (Denial-Of-Service) attack handler for Rails apps. By including in the app, it can track requests per IP address and refuse further processing of the request if there were too many requests recently from the given IP address.}
 
   s.rubyforge_project = "wait_a_minute"
 
