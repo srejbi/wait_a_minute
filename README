@@ -1,0 +1,77 @@
+== WaitAMinute
+
+A simple, application level DOS (Denial-Of-Service) protection tool for 
+small Rails applications.
+
+== How does it work?
+
+Once WaitAMinute gem is installed and configured in a Rails application, it 
+will run a before_filter on *every* call to any subclasses of ActionController.
+
+The before hook checks if the IP is a 'friendly' one (eg. NewRelic monitoring), 
+meaning it is allowed no matter what. 
+For 'non-friendly' IP addresses, the before filter checks if the IP is not already
+banned within a minute (hence the name of the gem), if not, it checks the number 
+of previous requests from the given address within a configurable floating timeframe
+and allows the request to be served only if the address did not exceed the allowed
+maximum requests within the timeframe. WaitAMinute then stores the request IP and 
+the timestamp along with a bit indicating if the request was refused or not.
+
+If the IP is banned, WaitAMinute renders a page with HTTP status 503 telling the 
+server is too busy to handle the request and that the user should retry after a minute.
+
+== Installation
+
+add the gem to your Gemfile then
+# bundle install
+
+== Configuration
+
+in your application's root directory, 
+
+run 
+# rails g wait_a_minute:install
+
+then
+# rake db:migrate
+
+finally revise and tweak
+config/initializers/wait_a_minute.rb
+
+WaitAMinute.lookback_interval - the floating timeframe size, 
+eg. 2.minutes
+
+WaitAMinute.maximum_requests - the max number of requests from a single IP 
+within the timeframe, eg. 24 - along with the above it allows a request 
+every 5 seconds from a single IP address
+
+WaitAMinute.debug - set to true for having IP filtering logged
+
+WaitAMinute.layout - if some layout is needed around the error page, specify it 
+here /for best performance it is not recommended, we want banned IP's to use 
+the least resources/
+
+WaitAMinute.allowed_ips - an array of strings with IP addresses that never should 
+be banned, eg, ['127.0.0.1'] (once tried that it works ok on the development box, 
+likely want the local developer to pass through always)
+
+== Customization
+
+create app/views/wait_a_minute/wait_a_minute.html.erb and customize to your 
+liking to override the default error page for banned IP addresses.
+
+== Maintenance
+
+from time to time WaitAMinute.cleanup should be called from a scheduled
+script to flush obsolete request logs in order to keep an optimal
+ActiveRecord performance in its filtering operations.
+
+== Further considerations
+
+as the piece of software works with the REMOTE_ADDR of the request, it is only 
+suitable in environments where it reflects the original request address.
+(eg. it won't work in an environment where a load balancer replaces the
+REMOTE_ADDR address in the request)
+
+
+
